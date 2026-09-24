@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - name: Checkout Repository
@@ -21,7 +21,14 @@ jobs:
         node-version: 18
 
     - name: Generate Solution
-      run: node make
+      run: |
+        if (Test-Path "armorcore/Kinc/make.js") { 
+          node armorcore/Kinc/make -g direct3d12 
+        } elseif (Test-Path "Kinc/make.js") { 
+          node Kinc/make -g direct3d12 
+        } else { 
+          node make -g direct3d12 
+        }
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
