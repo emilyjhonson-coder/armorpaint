@@ -1,21 +1,37 @@
 name: Windows (Direct3D12)
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+    branches: [ main ]
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Compile
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Node.js
+      uses: actions/actions-setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Generate Solution
+      run: node make
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Compile Release Build
       run: |
-        cd paint
-        ../base/make --compile
+        msbuild build/ArmorPaint.sln /p:Configuration=Release /p:Platform=x64
+
+    - name: Upload Finished Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: ArmorPaint-Windows
+        path: build/x64/Release/
